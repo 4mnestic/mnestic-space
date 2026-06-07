@@ -1,0 +1,60 @@
+---
+interface Props {
+  src: string;
+  alt: string;
+  width?: number;
+  caption?: string;
+}
+
+const { src, alt, width = 300, caption } = Astro.props;
+---
+
+<figure class="ascii-image" style={`width: ${width}px; max-width: 100%;`}>
+  <span class="corner tl" aria-hidden="true">+</span>
+  <span class="corner tr" aria-hidden="true">+</span>
+  <span class="corner bl" aria-hidden="true">+</span>
+  <span class="corner br" aria-hidden="true">+</span>
+  <img src={src} alt={alt} />
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+.ascii-image {
+  border: 1px solid var(--color-border);
+  position: relative;
+  display: inline-block;
+  padding: 0;
+}
+
+.ascii-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ascii-image figcaption {
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--color-border);
+  text-align: center;
+  border-top: 1px solid var(--color-border);
+}
+
+.corner {
+  position: absolute;
+  background: var(--color-bg);
+  color: var(--color-border);
+  font-family: var(--font-mono);
+  font-size: 1em;
+  line-height: 1;
+  width: 1ch;
+  text-align: center;
+  user-select: none;
+  z-index: 1;
+}
+
+.tl { top: -0.55em; left: -0.55ch; }
+.tr { top: -0.55em; right: -0.55ch; }
+.bl { bottom: -0.55em; left: -0.55ch; }
+.br { bottom: -0.55em; right: -0.55ch; }
+</style>
