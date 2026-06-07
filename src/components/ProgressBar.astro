@@ -1,0 +1,41 @@
+---
+interface Props {
+  label: string;
+  percent: number;   // 0–100
+  width?: number;    // number of characters wide (default 20)
+}
+
+const { label, percent, width = 20 } = Astro.props;
+
+const filled = Math.round((percent / 100) * width);
+const empty = width - filled;
+const bar = '='.repeat(filled) + '.'.repeat(empty);
+const display = `${Math.round(percent)}%`.padStart(4);
+---
+
+<div class="progress-row">
+  <span class="progress-label">{label}</span>
+  <span class="progress-bar">[{bar}] {display}</span>
+</div>
+
+<style>
+.progress-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+
+.progress-label {
+  min-width: 12ch;
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
+
+.progress-bar {
+  color: var(--color-accent-1);
+  white-space: pre;
+  font-size: 0.9rem;
+}
+</style>

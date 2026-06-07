@@ -1,0 +1,60 @@
+---
+import AsciiBox from './AsciiBox.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  tags: string[];
+  slug: string;
+}
+
+const { title, description, tags, slug } = Astro.props;
+---
+
+<AsciiBox class="project-card">
+  <h3><a href={`/projects/${slug}`}>{title}</a></h3>
+  <p class="card-desc">{description}</p>
+  <div class="tags">
+    {tags.map(tag => <span class="tag">[{tag}]</span>)}
+  </div>
+  <a href={`/projects/${slug}`} class="card-link">&gt;&gt; view project</a>
+</AsciiBox>
+
+<style>
+.project-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card-desc {
+  color: var(--color-text);
+  font-size: 0.9rem;
+  max-width: 55ch;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  font-size: 0.75rem;
+  color: var(--color-border);
+}
+
+.card-link {
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+h3 a {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+h3 a:hover {
+  color: var(--color-accent-1);
+}
+</style>
