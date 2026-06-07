@@ -1,0 +1,36 @@
+---
+import Nav from '../components/Nav.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = 'Portfolio of Zach Keyes — actuary, data scientist, builder.',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, 'https://mnestic.space');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+    <title>{title} | mnestic.space</title>
+  </head>
+  <body>
+    <Nav currentPath={Astro.url.pathname} />
+    <main>
+      <slot />
+    </main>
+    <footer>
+      <p>// zach keyes // mnestic.space</p>
+    </footer>
+  </body>
+</html>
