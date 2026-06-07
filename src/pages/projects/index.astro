@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getCollection } from 'astro:content';
+
+const projects = await getCollection('projects');
+projects.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+---
+
+<BaseLayout title="Projects" description="Projects by Zach Keyes — actuarial tools, ML work, and more.">
+
+  <h2 class="page-title">// PROJECTS</h2>
+
+  <p class="intro">
+    A mix of actuarial tools, machine learning work, and other things I've built.
+  </p>
+
+  <div class="projects-grid">
+    {projects.map(project => (
+      <ProjectCard
+        title={project.data.title}
+        description={project.data.description}
+        tags={project.data.tags}
+        slug={project.id}
+      />
+    ))}
+  </div>
+
+</BaseLayout>
+
+<style>
+.page-title {
+  margin-bottom: 1rem;
+  color: var(--color-accent-1);
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+}
+
+.intro {
+  color: var(--color-border);
+  font-size: 0.9rem;
+  margin-bottom: 2.5rem;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+</style>
