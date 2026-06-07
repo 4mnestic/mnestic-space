@@ -1,0 +1,90 @@
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/700.css';
+
+:root {
+  --color-bg:       #111111;
+  --color-text:     #e8e8e0;
+  --color-border:   #444444;
+  --color-accent-1: #5b8db8;
+  --color-accent-2: #e8e8e0;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  --line-height: 1.6;
+  --max-width: 860px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  line-height: var(--line-height);
+  font-size: 16px;
+}
+
+body {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+a {
+  color: var(--color-accent-1);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+h1 {
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: 1.4rem;
+  line-height: 1.2;
+  letter-spacing: 0.05em;
+}
+
+h3 {
+  font-size: 1.1rem;
+  line-height: 1.2;
+}
+
+p {
+  max-width: 65ch;
+}
+
+.dimmed {
+  color: var(--color-border);
+  font-size: 0.85rem;
+}
+
+.label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-border);
+}
+
+.section {
+  margin-bottom: 3rem;
+}
+
+main {
+  min-height: 70vh;
+}
+
+footer {
+  margin-top: 4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-border);
+  font-size: 0.85rem;
+}
