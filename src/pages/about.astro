@@ -1,8 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import AsciiBox from '../components/AsciiBox.astro';
-import AsciiImage from '../components/AsciiImage.astro';
-import ProgressBar from '../components/ProgressBar.astro';
 ---
 
 <BaseLayout title="About" description="About Zach Keyes — background, studies, and actuarial progress.">
@@ -10,49 +8,59 @@ import ProgressBar from '../components/ProgressBar.astro';
   <h2 class="page-title">// ABOUT</h2>
 
   <section class="bio-section section">
-    <div class="bio-layout">
-      <div class="bio-text">
-        <p>
-          I'm Zach Keyes, a mathematician and information scientist working toward
-          a career in actuarial science. I hold a B.S. in Mathematics and
-          Information Science from the University of Arizona, and I'm currently
-          completing an accelerated M.S. in Information Science with an emphasis
-          in machine learning.
-        </p>
-        <br />
-        <p>
-          I'm drawn to problems where rigorous quantitative thinking meets real-world
-          decisions — risk, uncertainty, and the models we build to reason about them.
-          My machine learning background gives me a different lens than most actuarial
-          candidates, and I try to bring that to bear in everything I build.
-        </p>
-        <br />
-        <p>
-          Outside of coursework, I build tools and explore ideas that sit at the
-          intersection of data, probability, and design.
-        </p>
-      </div>
-
-      <div class="bio-image">
-        <AsciiImage
-          src="/images/photo.jpg"
-          alt="Zach Keyes"
-          width={220}
-          caption="[ irl ]"
-        />
-      </div>
-    </div>
+    <p>
+      I'm Zach Keyes, a mathematician and information scientist working toward
+      a career in actuarial science. I hold a B.S. in Mathematics and
+      Information Science from the University of Arizona, and I'm currently
+      completing an accelerated M.S. in Information Science with an emphasis
+      in machine learning.
+    </p>
+    <br />
+    <p>
+      I'm drawn to the nexus where rigorous quantitative thinking is applied to real-world problems. This requires a solid foundation in theory and problem-solving skills trained through practice, both of which I bring to the table. My machine learning expertise gives me an additional lens for actuarial problems.
+    </p>
+    <br />
+    <p>
+      Outside of coursework, I build tools and feed my curiosity of the world and how
+      we might model it. I also have many non-professional interests: espresso, bouldering, backpacking, science fiction and classic literature and film, public infrastructure and riding my V13 EUC just to name a few.
+    </p>
   </section>
 
   <section class="section">
     <h3 class="section-heading">// ACTUARIAL PROGRESS</h3>
     <AsciiBox>
-      <ProgressBar label="Exam P" percent={100} />
-      <ProgressBar label="Exam FM" percent={0} />
-      <ProgressBar label="Exam FAM" percent={0} />
-      <ProgressBar label="VEE Economics" percent={0} />
-      <ProgressBar label="VEE Statistics" percent={100} />
-      <ProgressBar label="VEE Accounting" percent={0} />
+      <div class="status-list">
+        <div class="status-row">
+          <span class="status-label">Exam P</span>
+          <span class="status-tag planned">[ planned ]</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Exam FM</span>
+          <span class="status-tag planned">[ planned ]</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Exam FAM</span>
+          <span class="status-tag dimmed">[ — ]</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">VEE Economics</span>
+          <span class="status-tag dimmed">[ — ]</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">VEE Statistics</span>
+          <span class="status-tag dimmed">[ — ]</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">VEE Accounting</span>
+          <span class="status-tag dimmed">[ — ]</span>
+        </div>
+      </div>
+      <br />
+      <p class="progress-note">
+        Planning to register for Exam P and FM. Completed Theory of Probability
+        and Theory of Statistics at U of Arizona — the groundwork is there,
+        the exams are next.
+      </p>
     </AsciiBox>
   </section>
 
@@ -109,20 +117,44 @@ import ProgressBar from '../components/ProgressBar.astro';
   margin-bottom: 1rem;
 }
 
-.bio-layout {
+.bio-section p {
+  max-width: 65ch;
+  line-height: 1.7;
+}
+
+.status-list {
   display: flex;
-  gap: 2.5rem;
-  align-items: flex-start;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.4rem;
 }
 
-.bio-text {
-  flex: 1;
-  min-width: 240px;
+.status-row {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  font-size: 0.9rem;
 }
 
-.bio-image {
-  flex-shrink: 0;
+.status-label {
+  min-width: 14ch;
+}
+
+.status-tag {
+  font-size: 0.85rem;
+}
+
+.status-tag.planned {
+  color: var(--color-accent-1);
+}
+
+.status-tag.dimmed {
+  color: var(--color-dimmed, #555);
+}
+
+.progress-note {
+  font-size: 0.85rem;
+  color: var(--color-dimmed, #666);
+  line-height: 1.6;
 }
 
 .edu-entry {

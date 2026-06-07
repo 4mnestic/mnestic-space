@@ -7,24 +7,31 @@ import AsciiImage from '../components/AsciiImage.astro';
   <section class="hero section">
     <h1 class="site-name">ZACH KEYES</h1>
     <p class="tagline">
-      actuary-in-training. quantitative builder. information scientist.
+      actuary-in-training. mathematician. engineer. builder.
     </p>
   </section>
 
   <section class="avatar-section section">
-    <AsciiImage
-      src="/images/avatar.jpg"
-      alt="Zach Keyes — online identity"
-      width={280}
-    />
+    <div class="avatar-layout">
+      <AsciiImage
+        src="/images/avatar.jpg"
+        alt="Zach Keyes — online identity"
+        width={280}
+      />
+      <AsciiImage
+        src="/images/photo.jpg"
+        alt="Zach Keyes"
+        width={220}
+        caption="[ irl ]"
+      />
+    </div>
   </section>
 
   <section class="intro section">
     <p>
       I'm a mathematics and information science graduate at the University of Arizona,
       currently pursuing an accelerated M.S. in information science with a focus on
-      machine learning. I'm working toward a career in actuarial science — building
-      tools, crunching numbers, and making models that mean something.
+      machine learning. I'm working toward a career in actuarial science, where I hope to interpret data, build tools, and model the world.
     </p>
   </section>
 
@@ -53,6 +60,13 @@ import AsciiImage from '../components/AsciiImage.astro';
 
 .avatar-section {
   margin-bottom: 2rem;
+}
+
+.avatar-layout {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
 }
 
 .intro p {
