@@ -1,0 +1,142 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AsciiBox from '../components/AsciiBox.astro';
+import AsciiImage from '../components/AsciiImage.astro';
+import ProgressBar from '../components/ProgressBar.astro';
+---
+
+<BaseLayout title="About" description="About Zach Keyes — background, studies, and actuarial progress.">
+
+  <h2 class="page-title">// ABOUT</h2>
+
+  <section class="bio-section section">
+    <div class="bio-layout">
+      <div class="bio-text">
+        <p>
+          I'm Zach Keyes, a mathematician and information scientist working toward
+          a career in actuarial science. I hold a B.S. in Mathematics and
+          Information Science from the University of Arizona, and I'm currently
+          completing an accelerated M.S. in Information Science with an emphasis
+          in machine learning.
+        </p>
+        <br />
+        <p>
+          I'm drawn to problems where rigorous quantitative thinking meets real-world
+          decisions — risk, uncertainty, and the models we build to reason about them.
+          My machine learning background gives me a different lens than most actuarial
+          candidates, and I try to bring that to bear in everything I build.
+        </p>
+        <br />
+        <p>
+          Outside of coursework, I build tools and explore ideas that sit at the
+          intersection of data, probability, and design.
+        </p>
+      </div>
+
+      <div class="bio-image">
+        <AsciiImage
+          src="/images/photo.jpg"
+          alt="Zach Keyes"
+          width={220}
+          caption="[ irl ]"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h3 class="section-heading">// ACTUARIAL PROGRESS</h3>
+    <AsciiBox>
+      <ProgressBar label="Exam P" percent={100} />
+      <ProgressBar label="Exam FM" percent={0} />
+      <ProgressBar label="Exam FAM" percent={0} />
+      <ProgressBar label="VEE Economics" percent={0} />
+      <ProgressBar label="VEE Statistics" percent={100} />
+      <ProgressBar label="VEE Accounting" percent={0} />
+    </AsciiBox>
+  </section>
+
+  <section class="section">
+    <h3 class="section-heading">// EDUCATION</h3>
+    <AsciiBox>
+      <div class="edu-entry">
+        <p><strong>B.S. Mathematics &amp; Information Science</strong></p>
+        <p class="dimmed">University of Arizona</p>
+      </div>
+      <br />
+      <div class="edu-entry">
+        <p><strong>M.S. Information Science</strong> <span class="dimmed">(in progress)</span></p>
+        <p class="dimmed">University of Arizona — emphasis: machine learning</p>
+        <p class="dimmed">Accelerated program</p>
+      </div>
+    </AsciiBox>
+  </section>
+
+  <section class="section">
+    <h3 class="section-heading">// SKILLS</h3>
+    <AsciiBox>
+      <div class="skills-grid">
+        <div>
+          <p class="label">languages</p>
+          <p>Python, R, SQL</p>
+        </div>
+        <div>
+          <p class="label">tools &amp; libraries</p>
+          <p>NumPy, Pandas, Scikit-learn, Matplotlib</p>
+        </div>
+        <div>
+          <p class="label">domains</p>
+          <p>actuarial science, machine learning, data analysis, probability &amp; statistics</p>
+        </div>
+      </div>
+    </AsciiBox>
+  </section>
+
+</BaseLayout>
+
+<style>
+.page-title {
+  margin-bottom: 2rem;
+  color: var(--color-accent-1);
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+}
+
+.section-heading {
+  color: var(--color-accent-1);
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+
+.bio-layout {
+  display: flex;
+  gap: 2.5rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.bio-text {
+  flex: 1;
+  min-width: 240px;
+}
+
+.bio-image {
+  flex-shrink: 0;
+}
+
+.edu-entry {
+  margin-bottom: 0.25rem;
+}
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.skills-grid p:not(.label) {
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+</style>
