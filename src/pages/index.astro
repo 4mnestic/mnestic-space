@@ -1,11 +1,62 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import AsciiBox from '../components/AsciiBox.astro';
+import AsciiImage from '../components/AsciiImage.astro';
 ---
 
-<BaseLayout title="Home">
-  <h1>mnestic.space</h1>
-  <AsciiBox>
-    <p>This content is inside an ASCII box.</p>
-  </AsciiBox>
+<BaseLayout title="Home" description="Portfolio of Zach Keyes — actuary, data scientist, builder.">
+  <section class="hero section">
+    <h1 class="site-name">ZACH KEYES</h1>
+    <p class="tagline">
+      actuary-in-training. quantitative builder. information scientist.
+    </p>
+  </section>
+
+  <section class="avatar-section section">
+    <AsciiImage
+      src="/images/avatar.png"
+      alt="Zach Keyes — online identity"
+      width={280}
+    />
+  </section>
+
+  <section class="intro section">
+    <p>
+      I'm a mathematics and information science graduate at the University of Arizona,
+      currently pursuing an accelerated M.S. in information science with a focus on
+      machine learning. I'm working toward a career in actuarial science — building
+      tools, crunching numbers, and making models that mean something.
+    </p>
+  </section>
+
+  <section class="section">
+    <p>
+      <a href="/projects">&gt;&gt; view my projects</a>
+      &nbsp;&nbsp;
+      <a href="/about">&gt;&gt; about me</a>
+    </p>
+  </section>
 </BaseLayout>
+
+<style>
+.site-name {
+  font-size: 2.5rem;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.5rem;
+}
+
+.tagline {
+  color: var(--color-accent-1);
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  max-width: 55ch;
+}
+
+.avatar-section {
+  margin-bottom: 2rem;
+}
+
+.intro p {
+  max-width: 60ch;
+  line-height: 1.7;
+}
+</style>
