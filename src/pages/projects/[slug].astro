@@ -1,0 +1,115 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AsciiBox from '../../components/AsciiBox.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map(project => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await project.render();
+const { title, description, tags, demo, github } = project.data;
+---
+
+<BaseLayout title={title} description={description}>
+
+  <p class="back-link"><a href="/projects">&lt;&lt; back to projects</a></p>
+
+  <h2 class="project-title">{title}</h2>
+
+  <div class="tags">
+    {tags.map(tag => <span class="tag">[{tag}]</span>)}
+  </div>
+
+  <p class="project-desc">{description}</p>
+
+  {demo && (
+    <section class="section">
+      <h3 class="section-heading">// LIVE DEMO</h3>
+      <AsciiBox class="iframe-box">
+        <iframe
+          src={demo}
+          title={`${title} — interactive demo`}
+          width="100%"
+          height="600"
+          frameborder="0"
+          loading="lazy"
+        ></iframe>
+      </AsciiBox>
+    </section>
+  )}
+
+  {github && (
+    <section class="section">
+      <p><a href={github} target="_blank" rel="noopener noreferrer">&gt;&gt; view on github</a></p>
+    </section>
+  )}
+
+  <section class="section content">
+    <Content />
+  </section>
+
+</BaseLayout>
+
+<style>
+.back-link {
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
+}
+
+.project-title {
+  margin-bottom: 0.75rem;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tag {
+  font-size: 0.75rem;
+  color: var(--color-border);
+}
+
+.project-desc {
+  color: var(--color-text);
+  margin-bottom: 2rem;
+  max-width: 60ch;
+}
+
+.section-heading {
+  color: var(--color-accent-1);
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+
+.iframe-box {
+  padding: 0;
+  overflow: hidden;
+}
+
+.content :global(h2),
+.content :global(h3) {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-accent-1);
+}
+
+.content :global(p) {
+  margin-bottom: 1rem;
+}
+
+.content :global(ul),
+.content :global(ol) {
+  padding-left: 2rem;
+  margin-bottom: 1rem;
+}
+</style>
