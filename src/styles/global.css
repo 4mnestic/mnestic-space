@@ -9,7 +9,7 @@
   --color-accent-2: #e8e8e0;
   --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
   --line-height: 1.6;
-  --max-width: 860px;
+  --max-width: 1100px;
 }
 
 *, *::before, *::after {
@@ -18,8 +18,18 @@
   padding: 0;
 }
 
-html, body {
+html {
   background-color: var(--color-bg);
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent,
+    transparent 23px,
+    rgba(255, 255, 255, 0.025) 23px,
+    rgba(255, 255, 255, 0.025) 24px
+  );
+}
+
+html, body {
   color: var(--color-text);
   font-family: var(--font-mono);
   line-height: var(--line-height);
@@ -30,6 +40,7 @@ body {
   max-width: var(--max-width);
   margin: 0 auto;
   padding: 2rem 1.5rem;
+  background-color: var(--color-bg);
 }
 
 a {
