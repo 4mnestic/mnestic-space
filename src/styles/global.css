@@ -20,13 +20,12 @@
 
 html {
   background-color: var(--color-bg);
-  background-image: repeating-linear-gradient(
-    to right,
-    transparent,
-    transparent 23px,
-    rgba(255, 255, 255, 0.025) 23px,
-    rgba(255, 255, 255, 0.025) 24px
+  background-image: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.06) 1px,
+    transparent 1px
   );
+  background-size: 28px 28px;
 }
 
 html, body {
