@@ -10,16 +10,16 @@ import AsciiBox from '../components/AsciiBox.astro';
   <AsciiBox>
     <div class="contact-list">
       <div class="contact-row">
-        <span class="contact-label">email</span>
-        zachk (@ my school's email domain)
+        <span class="contact-label unlinked">email</span>
+        <span>zachk (@ my school's email domain)</span>
       </div>
       <div class="contact-row">
-        <span class="contact-label">github</span>
-        <a href="https://github.com/4mnestic" target="_blank" rel="noopener noreferrer">&gt;&gt; github.com/4mnestic</a>
+        <a class="contact-label" href="https://github.com/4mnestic" target="_blank" rel="noopener noreferrer">github</a>
+        <span>github.com/4mnestic</span>
       </div>
       <div class="contact-row">
-        <span class="contact-label">linkedin</span>
-        <a href="https://linkedin.com/in/zkey" target="_blank" rel="noopener noreferrer">&gt;&gt; linkedin.com/in/YOURUSERNAME</a>
+        <a class="contact-label" href="https://linkedin.com/in/zkey" target="_blank" rel="noopener noreferrer">linkedin</a>
+        <span>linkedin.com/in/zkey</span>
       </div>
     </div>
   </AsciiBox>
@@ -55,7 +55,10 @@ import AsciiBox from '../components/AsciiBox.astro';
 
 .contact-label {
   min-width: 8ch;
-  color: var(--color-border);
   font-size: 0.85rem;
+}
+
+.contact-label.unlinked {
+  color: var(--color-border);
 }
 </style>
