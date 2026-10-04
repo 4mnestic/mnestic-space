@@ -3,10 +3,9 @@ interface Props {
   src: string;
   alt: string;
   width?: number;
-  caption?: string;
 }
 
-const { src, alt, width = 300, caption } = Astro.props;
+const { src, alt, width = 300 } = Astro.props;
 ---
 
 <figure class="ascii-image" style={`width: ${width}px; max-width: 100%;`}>
@@ -15,7 +14,6 @@ const { src, alt, width = 300, caption } = Astro.props;
   <span class="corner bl" aria-hidden="true">+</span>
   <span class="corner br" aria-hidden="true">+</span>
   <img src={src} alt={alt} />
-  {caption && <figcaption>{caption}</figcaption>}
 </figure>
 
 <style>
@@ -30,14 +28,6 @@ const { src, alt, width = 300, caption } = Astro.props;
   display: block;
   width: 100%;
   height: auto;
-}
-
-.ascii-image figcaption {
-  padding: 0.5rem;
-  font-size: 0.75rem;
-  color: var(--color-border);
-  text-align: center;
-  border-top: 1px solid var(--color-border);
 }
 
 .corner {
