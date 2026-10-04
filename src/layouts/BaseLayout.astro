@@ -13,6 +13,8 @@ const {
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, 'https://mnestic.space');
+const ogImage = new URL('/images/avatar.jpg', 'https://mnestic.space');
+const pageTitle = `${title} | mnestic.space`;
 ---
 
 <!doctype html>
@@ -22,7 +24,17 @@ const canonicalURL = new URL(Astro.url.pathname, 'https://mnestic.space');
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
-    <title>{title} | mnestic.space</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="mnestic.space" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="600" />
+    <meta property="og:image:height" content="600" />
+    <meta property="og:image:alt" content="mnestic avatar artwork" />
+    <meta name="twitter:card" content="summary" />
+    <title>{pageTitle}</title>
   </head>
   <body>
     <Nav currentPath={Astro.url.pathname} />

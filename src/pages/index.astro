@@ -18,8 +18,9 @@ import AsciiImage from '../components/AsciiImage.astro';
     </div>
     <p>
       Welcome to my website/portfolio. This is a place for me to put cool stuff.
-
-      I am a graduate student at the University of Arizona, studying information science with an emphasis in machine learning. I'm also studying for the actuarial exams P and FM. I also do lots of projects for fun, some of which I complete and put here. 
+    </p>
+    <p>
+      I am a graduate student at the University of Arizona, studying information science with an emphasis in machine learning. I'm also studying for the actuarial exams P and FM. I also do lots of projects for fun, some of which I complete and put here.
     </p>
   </section>
 
@@ -39,13 +40,6 @@ import AsciiImage from '../components/AsciiImage.astro';
   margin-bottom: 0.5rem;
 }
 
-.tagline {
-  color: var(--color-accent-1);
-  font-size: 1rem;
-  margin-bottom: 2rem;
-  max-width: 55ch;
-}
-
 .intro {
   display: flow-root;
   max-width: calc(280px + 2rem + 60ch);
@@ -59,6 +53,10 @@ import AsciiImage from '../components/AsciiImage.astro';
 .intro p {
   max-width: none;
   line-height: 1.7;
+}
+
+.intro p + p {
+  margin-top: 1rem;
 }
 
 @media (max-width: 600px) {
