@@ -71,11 +71,6 @@ p {
   max-width: 65ch;
 }
 
-.dimmed {
-  color: var(--color-border);
-  font-size: 0.85rem;
-}
-
 .label {
   font-size: 0.75rem;
   text-transform: uppercase;
