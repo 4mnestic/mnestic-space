@@ -4,16 +4,13 @@ import '../styles/global.css';
 
 interface Props {
   title: string;
-  description?: string;
+  description: string;
 }
 
-const {
-  title,
-  description = 'Portfolio of Zach Keyes — actuary, data scientist, builder.',
-} = Astro.props;
+const { title, description } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, 'https://mnestic.space');
-const ogImage = new URL('/images/avatar.jpg', 'https://mnestic.space');
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL('/images/avatar.jpg', Astro.site);
 const pageTitle = `${title} | mnestic.space`;
 ---
 
