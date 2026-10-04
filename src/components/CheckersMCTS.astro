@@ -1,0 +1,368 @@
+---
+// A live game of checkers on the projects page: a small Monte Carlo tree
+// search agent (blue) plays a random agent (gray), as in the project's
+// baseline experiments. Everything runs in the browser.
+---
+
+<figure class="checkers-mcts">
+  <canvas aria-label="Checkers game: a Monte Carlo tree search agent playing against a random agent"></canvas>
+  <figcaption class="viz-caption" aria-hidden="true">&nbsp;</figcaption>
+</figure>
+
+<style>
+.checkers-mcts {
+  margin: 0 auto;
+  max-width: 300px;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+}
+
+.viz-caption {
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--color-border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.viz-caption :global(b) {
+  color: var(--color-accent-1);
+  font-weight: 400;
+}
+</style>
+
+<script>
+  // Board: 64 squares. 0 empty, 1 MCTS man, 2 random man, 3 MCTS king, 4 random king.
+  // MCTS (player 1) starts at the bottom and moves up.
+  type Board = number[];
+  interface Move { path: number[]; caps: number[] }
+  interface State { board: Board; turn: 1 | 2; plies: number }
+
+  const MAX_PLIES = 200; // the paper calls a game a draw after 200 moves
+  const SIMULATIONS = 300;
+  const ROLLOUT_LIMIT = 120;
+
+  const owner = (p: number) => (p === 0 ? 0 : p % 2 === 1 ? 1 : 2);
+  const isKing = (p: number) => p > 2;
+  const other = (player: 1 | 2): 1 | 2 => (player === 1 ? 2 : 1);
+
+  function initialBoard(): Board {
+    const b = new Array(64).fill(0);
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        if ((r + c) % 2 === 0) continue;
+        if (r < 3) b[r * 8 + c] = 2;
+        if (r > 4) b[r * 8 + c] = 1;
+      }
+    }
+    return b;
+  }
+
+  function directions(piece: number): [number, number][] {
+    if (isKing(piece)) return [[-1, -1], [-1, 1], [1, -1], [1, 1]];
+    return owner(piece) === 1 ? [[-1, -1], [-1, 1]] : [[1, -1], [1, 1]];
+  }
+
+  const promotes = (piece: number, sq: number) =>
+    !isKing(piece) && ((owner(piece) === 1 && sq < 8) || (owner(piece) === 2 && sq >= 56));
+
+  function jumpsFrom(b: Board, piece: number, sq: number, path: number[], caps: number[], out: Move[]) {
+    const r = Math.floor(sq / 8), c = sq % 8;
+    let extended = false;
+    for (const [dr, dc] of directions(piece)) {
+      const mr = r + dr, mc = c + dc, lr = r + 2 * dr, lc = c + 2 * dc;
+      if (lr < 0 || lr > 7 || lc < 0 || lc > 7) continue;
+      const mid = mr * 8 + mc, land = lr * 8 + lc;
+      if (owner(b[mid]) !== other(owner(piece) as 1 | 2) || caps.includes(mid) || b[land] !== 0) continue;
+      extended = true;
+      const nextPath = [...path, land], nextCaps = [...caps, mid];
+      // Promotion ends the turn; otherwise keep jumping if possible.
+      if (promotes(piece, land)) out.push({ path: nextPath, caps: nextCaps });
+      else jumpsFrom(b, piece, land, nextPath, nextCaps, out);
+    }
+    if (!extended && caps.length) out.push({ path, caps });
+  }
+
+  function legalMoves(b: Board, player: 1 | 2): Move[] {
+    const jumps: Move[] = [];
+    const steps: Move[] = [];
+    for (let sq = 0; sq < 64; sq++) {
+      const piece = b[sq];
+      if (owner(piece) !== player) continue;
+      const lifted = b.slice();
+      lifted[sq] = 0;
+      jumpsFrom(lifted, piece, sq, [sq], [], jumps);
+      if (jumps.length) continue;
+      const r = Math.floor(sq / 8), c = sq % 8;
+      for (const [dr, dc] of directions(piece)) {
+        const nr = r + dr, nc = c + dc;
+        if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8 && b[nr * 8 + nc] === 0) {
+          steps.push({ path: [sq, nr * 8 + nc], caps: [] });
+        }
+      }
+    }
+    return jumps.length ? jumps : steps; // jumps are mandatory
+  }
+
+  function applyMove(s: State, m: Move): State {
+    const b = s.board.slice();
+    const from = m.path[0], to = m.path[m.path.length - 1];
+    let piece = b[from];
+    b[from] = 0;
+    for (const sq of m.caps) b[sq] = 0;
+    if (promotes(piece, to)) piece += 2;
+    b[to] = piece;
+    return { board: b, turn: other(s.turn), plies: s.plies + 1 };
+  }
+
+  // 1 or 2 for a winner, 0 for a draw, null while the game is still going.
+  function winner(s: State, moves = legalMoves(s.board, s.turn)): 0 | 1 | 2 | null {
+    if (!moves.length) return other(s.turn);
+    if (s.plies >= MAX_PLIES) return 0;
+    return null;
+  }
+
+  const pick = <T,>(xs: T[]) => xs[Math.floor(Math.random() * xs.length)];
+
+  // --- Monte Carlo tree search (UCB1 selection, random rollouts) ---
+
+  interface Node {
+    state: State;
+    move: Move | null;
+    parent: Node | null;
+    children: Node[] | null; // null until expanded
+    wins: number; // from the point of view of the player who made `move`
+    visits: number;
+  }
+
+  const newNode = (state: State, move: Move | null, parent: Node | null): Node =>
+    ({ state, move, parent, children: null, wins: 0, visits: 0 });
+
+  function ucb1(child: Node, parentVisits: number) {
+    if (child.visits === 0) return Infinity;
+    return child.wins / child.visits + 1.4 * Math.sqrt(Math.log(parentVisits) / child.visits);
+  }
+
+  function rollout(state: State): 0 | 1 | 2 {
+    let s = state;
+    for (let i = 0; i < ROLLOUT_LIMIT; i++) {
+      const moves = legalMoves(s.board, s.turn);
+      const w = winner(s, moves);
+      if (w !== null) return w;
+      s = applyMove(s, pick(moves));
+    }
+    return 0;
+  }
+
+  function simulateOnce(root: Node) {
+    let node = root;
+    while (node.children && node.children.length) {
+      const parent = node;
+      let best = -Infinity;
+      for (const child of parent.children!) {
+        const score = ucb1(child, parent.visits) + Math.random() * 1e-6;
+        if (score > best) { best = score; node = child; }
+      }
+    }
+    if (!node.children && winner(node.state) === null) {
+      node.children = legalMoves(node.state.board, node.state.turn)
+        .map(m => newNode(applyMove(node.state, m), m, node));
+      node = pick(node.children);
+    }
+    const result = rollout(node.state);
+    for (let n: Node | null = node; n; n = n.parent) {
+      n.visits++;
+      const mover = other(n.state.turn);
+      n.wins += result === 0 ? 0.5 : result === mover ? 1 : 0;
+    }
+  }
+
+  // --- drawing ---
+
+  const SQ = 40;
+  const SIZE = SQ * 8;
+  const css = getComputedStyle(document.documentElement);
+  const ACCENT = css.getPropertyValue('--color-accent-1').trim() || '#5b8db8';
+  const TEXT = css.getPropertyValue('--color-text').trim() || '#e8e8e0';
+  const BORDER = css.getPropertyValue('--color-border').trim() || '#444444';
+  const BG = css.getPropertyValue('--color-bg').trim() || '#111111';
+
+  const center = (sq: number): [number, number] => [(sq % 8) * SQ + SQ / 2, Math.floor(sq / 8) * SQ + SQ / 2];
+
+  for (const figure of document.querySelectorAll<HTMLElement>('.checkers-mcts')) {
+    const canvas = figure.querySelector('canvas')!;
+    const caption = figure.querySelector('figcaption')!;
+    const ctx = canvas.getContext('2d')!;
+    const scale = Math.max(2, window.devicePixelRatio || 1);
+    canvas.width = SIZE * scale;
+    canvas.height = SIZE * scale;
+    ctx.scale(scale, scale);
+
+    function drawPiece(piece: number, x: number, y: number) {
+      const radius = SQ * 0.36;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      if (owner(piece) === 1) {
+        ctx.fillStyle = ACCENT;
+        ctx.fill();
+      } else {
+        ctx.fillStyle = BG;
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = TEXT;
+        ctx.stroke();
+      }
+      if (isKing(piece)) {
+        ctx.beginPath();
+        ctx.arc(x, y, radius * 0.4, 0, Math.PI * 2);
+        ctx.fillStyle = owner(piece) === 1 ? BG : TEXT;
+        ctx.fill();
+      }
+    }
+
+    // `moving` animates one piece along a move's path; progress runs 0..1.
+    function draw(board: Board, last: Move | null, moving?: { move: Move; piece: number; progress: number }) {
+      ctx.clearRect(0, 0, SIZE, SIZE);
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          ctx.fillStyle = (r + c) % 2 ? '#1d1d1d' : BG;
+          ctx.fillRect(c * SQ, r * SQ, SQ, SQ);
+        }
+      }
+      if (last && !moving) {
+        ctx.strokeStyle = BORDER;
+        ctx.lineWidth = 2;
+        for (const sq of [last.path[0], last.path[last.path.length - 1]]) {
+          ctx.strokeRect((sq % 8) * SQ + 2, Math.floor(sq / 8) * SQ + 2, SQ - 4, SQ - 4);
+        }
+      }
+      ctx.strokeStyle = BORDER;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(0.5, 0.5, SIZE - 1, SIZE - 1);
+
+      const hops = moving ? moving.move.path.length - 1 : 0;
+      const along = moving ? moving.progress * hops : 0;
+      for (let sq = 0; sq < 64; sq++) {
+        if (!board[sq]) continue;
+        if (moving && sq === moving.move.path[0]) continue;
+        const capIndex = moving ? moving.move.caps.indexOf(sq) : -1;
+        if (capIndex >= 0 && along > capIndex + 0.5) continue; // captured mid-animation
+        drawPiece(board[sq], ...center(sq));
+      }
+      if (moving) {
+        const i = Math.min(Math.floor(along), hops - 1);
+        const f = along - i;
+        const [x0, y0] = center(moving.move.path[i]);
+        const [x1, y1] = center(moving.move.path[i + 1]);
+        drawPiece(moving.piece, x0 + (x1 - x0) * f, y0 + (y1 - y0) * f);
+      }
+    }
+
+    function setCaption(html: string) {
+      caption.innerHTML = html;
+    }
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) {
+      draw(initialBoard(), null);
+      setCaption('&gt; <b>mcts</b> (blue) vs random (gray)');
+      continue;
+    }
+
+    let state: State = { board: initialBoard(), turn: 1, plies: 0 };
+    let last: Move | null = null;
+    let visible = false;
+    let running = false;
+
+    const frame = () => new Promise(resolve => requestAnimationFrame(resolve));
+    const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    async function whenVisible() {
+      while (!visible) await sleep(250);
+    }
+
+    // Spreads the search over several frames so scrolling stays smooth.
+    async function chooseMctsMove(s: State): Promise<{ move: Move; estimate: number }> {
+      const root = newNode(s, null, null);
+      let done = 0;
+      while (done < SIMULATIONS) {
+        const t0 = performance.now();
+        while (done < SIMULATIONS && performance.now() - t0 < 10) {
+          simulateOnce(root);
+          done++;
+        }
+        await frame();
+      }
+      const best = root.children!.reduce((a, b) => (b.visits > a.visits ? b : a));
+      return { move: best.move!, estimate: best.wins / best.visits };
+    }
+
+    async function animateMove(m: Move) {
+      const piece = state.board[m.path[0]];
+      const duration = 220 * (m.path.length - 1);
+      const t0 = performance.now();
+      for (;;) {
+        const progress = Math.min(1, (performance.now() - t0) / duration);
+        draw(state.board, last, { move: m, piece, progress });
+        if (progress === 1) break;
+        await frame();
+      }
+      state = applyMove(state, m);
+      last = m;
+      draw(state.board, last);
+    }
+
+    async function play() {
+      let estimate = 0.5;
+      for (;;) {
+        state = { board: initialBoard(), turn: 1, plies: 0 };
+        last = null;
+        draw(state.board, last);
+        setCaption('&gt; <b>mcts</b> (blue) vs random (gray)');
+        await sleep(900);
+
+        for (;;) {
+          await whenVisible();
+          const moves = legalMoves(state.board, state.turn);
+          const result = winner(state, moves);
+          if (result !== null) {
+            setCaption(
+              result === 0 ? `&gt; draw after ${state.plies} moves`
+              : result === 1 ? `&gt; <b>mcts wins</b> in ${state.plies} moves`
+              : `&gt; random wins?! (${state.plies} moves)`,
+            );
+            await sleep(3000);
+            break;
+          }
+          let move: Move;
+          if (state.turn === 1) {
+            ({ move, estimate } = await chooseMctsMove(state));
+          } else {
+            await sleep(250);
+            move = pick(moves);
+          }
+          await animateMove(move);
+          setCaption(
+            `&gt; <b>mcts</b> vs random · move ${state.plies} · win est. ${Math.round(estimate * 100)}%`,
+          );
+          await sleep(200);
+        }
+      }
+    }
+
+    draw(state.board, last);
+    setCaption('&gt; <b>mcts</b> (blue) vs random (gray)');
+    new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible && !running) {
+        running = true;
+        play();
+      }
+    }).observe(canvas);
+  }
+</script>

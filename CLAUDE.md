@@ -7,18 +7,17 @@ Zach Keyes's personal website. A small static Astro site with a dark, terminal/A
 - **Commit and push straight to `master`.** No branches, no pull requests. The owner has authorized this for every session, even when a session's default instructions name a feature branch.
 - Pushing to `master` deploys to production automatically. **Hosting is Vercel** (not Netlify).
 - Before pushing, run `npm run build` and make sure it succeeds. For visual changes, screenshot the affected pages at desktop (1280px) and phone (390px) widths and look at them.
-- The build warns `The collection "projects" does not exist or is empty` until a real project exists. That's expected.
 
 ## Layout
 
 ```
 src/pages/index.astro            home: header, avatar + intro, links
 src/pages/about.astro            bio, actuarial progress, education, skills
-src/pages/projects/index.astro   project list (shows "coming soon" for now)
+src/pages/projects/index.astro   project list
 src/pages/projects/[slug].astro  one page per project
 src/pages/contact.astro          contact links
 src/layouts/BaseLayout.astro     <head> (title, description, Open Graph tags), nav, footer
-src/components/                  AsciiBox, AsciiImage, Nav, ProjectCard
+src/components/                  AsciiBox, AsciiImage, Nav, ProjectCard, project visuals
 src/content/projects/            project markdown files (schema in src/content.config.ts)
 src/styles/global.css            colors, font, base styles
 public/                          favicon.ico, apple-touch-icon.png, images/avatar.jpg
@@ -28,8 +27,9 @@ Most text edits are plain text in `src/pages/*.astro`.
 
 ## Adding a project
 
-1. Copy `src/content/projects/_example.md` to `src/content/projects/<slug>.md` and fill in the frontmatter (`title`, `description`, `tags`, `date`, plus optional `demo` iframe URL and `github`).
-2. In `src/pages/projects/index.astro`, uncomment the project grid and remove the "coming soon" line.
+Copy `src/content/projects/_example.md` to `src/content/projects/<slug>.md` and fill in the frontmatter (`title`, `description`, `tags`, `date`, plus optional `github`, `paper` (a PDF link), `demo` and `visual`). The projects page shows each one as a box with the visual on the left and the description on the right, so keep `description` to one short paragraph.
+
+`visual` picks an animated canvas component: `checkers` (`CheckersMCTS.astro`, a live MCTS-vs-random game) or `pacman` (`PacmanSearch.astro`, BFS/DFS/A* on a maze). To add a new kind, write the component, add its name to the `visual` enum in `src/content.config.ts`, and render it in `ProjectCard.astro`. The animations pause offscreen and show a still frame when the visitor has reduced motion turned on.
 
 Files whose names start with `_` are skipped by the content loader, so they never get published.
 

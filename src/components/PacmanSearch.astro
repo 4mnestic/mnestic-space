@@ -1,0 +1,262 @@
+---
+// Animated replay of BFS, DFS and A* on the mediumMaze layout from the
+// Pac-man search project. Runs in the browser; nothing is precomputed.
+---
+
+<figure class="pacman-search">
+  <canvas aria-label="Pac-Man maze being solved by breadth-first, depth-first and A* search in turn"></canvas>
+  <figcaption class="viz-caption" aria-hidden="true">&nbsp;</figcaption>
+</figure>
+
+<style>
+.pacman-search {
+  margin: 0;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 1;
+}
+
+.viz-caption {
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--color-border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.viz-caption :global(b) {
+  color: var(--color-accent-1);
+  font-weight: 400;
+}
+</style>
+
+<script>
+  const LAYOUT = [
+    '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%',
+    '%                                 P%',
+    '% %%%%%%%%%%%%%%%%%%%%%%% %%%%%%%% %',
+    '% %%   %   %      %%%%%%%   %%     %',
+    '% %% % % % % %%%% %%%%%%%%% %% %%%%%',
+    '% %% % % % %             %% %%     %',
+    '% %% % % % % % %%%%  %%%    %%%%%% %',
+    '% %  % % %   %    %% %%%%%%%%      %',
+    '% %% % % %%%%%%%% %%        %% %%%%%',
+    '% %% %   %%       %%%%%%%%% %%     %',
+    '%    %%%%%% %%%%%%%      %% %%%%%% %',
+    '%%%%%%      %       %%%% %% %      %',
+    '%      %%%%%% %%%%% %    %% %% %%%%%',
+    '% %%%%%%      %       %%%%% %%     %',
+    '%        %%%%%% %%%%%%%%%%% %%  %% %',
+    '%%%%%%%%%%                  %%%%%% %',
+    '%.         %%%%%%%%%%%%%%%%        %',
+    '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%',
+  ];
+
+  const ROWS = LAYOUT.length;
+  const COLS = LAYOUT[0].length;
+  const CELL = 12;
+  const W = COLS * CELL;
+  const H = ROWS * CELL;
+
+  type Cell = [number, number]; // [row, col]
+
+  const wall = (r: number, c: number) =>
+    r < 0 || r >= ROWS || c < 0 || c >= COLS || LAYOUT[r][c] === '%';
+
+  let start: Cell = [0, 0];
+  let goal: Cell = [0, 0];
+  LAYOUT.forEach((line, r) => {
+    for (let c = 0; c < COLS; c++) {
+      if (line[c] === 'P') start = [r, c];
+      if (line[c] === '.') goal = [r, c];
+    }
+  });
+
+  const key = ([r, c]: Cell) => r * COLS + c;
+  const isGoal = (cell: Cell) => cell[0] === goal[0] && cell[1] === goal[1];
+
+  // Same successor order as the project: north, south, east, west.
+  function successors([r, c]: Cell): Cell[] {
+    const out: Cell[] = [];
+    for (const [dr, dc] of [[-1, 0], [1, 0], [0, 1], [0, -1]]) {
+      if (!wall(r + dr, c + dc)) out.push([r + dr, c + dc]);
+    }
+    return out;
+  }
+
+  interface Result {
+    expanded: Cell[];
+    path: Cell[];
+  }
+
+  // Graph search: `pop` picks which frontier entry to expand next.
+  function graphSearch(pop: (frontier: { cell: Cell; path: Cell[] }[]) => { cell: Cell; path: Cell[] }): Result {
+    const frontier = [{ cell: start, path: [start] }];
+    const closed = new Set<number>();
+    const expanded: Cell[] = [];
+    while (frontier.length) {
+      const { cell, path } = pop(frontier);
+      if (closed.has(key(cell))) continue;
+      closed.add(key(cell));
+      expanded.push(cell);
+      if (isGoal(cell)) return { expanded, path };
+      for (const next of successors(cell)) {
+        if (!closed.has(key(next))) frontier.push({ cell: next, path: [...path, next] });
+      }
+    }
+    return { expanded, path: [] };
+  }
+
+  const manhattan = ([r, c]: Cell) => Math.abs(r - goal[0]) + Math.abs(c - goal[1]);
+
+  const ALGORITHMS: { name: string; result: Result }[] = [
+    { name: 'breadth-first search', result: graphSearch(f => f.shift()!) },
+    { name: 'depth-first search', result: graphSearch(f => f.pop()!) },
+    {
+      name: 'a* search (manhattan)',
+      result: graphSearch(f => {
+        let best = 0;
+        const score = (i: number) => f[i].path.length + manhattan(f[i].cell);
+        for (let i = 1; i < f.length; i++) if (score(i) < score(best)) best = i;
+        return f.splice(best, 1)[0];
+      }),
+    },
+  ];
+
+  const css = getComputedStyle(document.documentElement);
+  const ACCENT = css.getPropertyValue('--color-accent-1').trim() || '#5b8db8';
+  const TEXT = css.getPropertyValue('--color-text').trim() || '#e8e8e0';
+  const PACMAN = '#f2c94c';
+
+  const EXPAND_FRAMES = 150; // frames to reveal the explored cells
+  const STEP_FRAMES = 2; // frames per pacman step along the path
+  const HOLD_FRAMES = 70;
+
+  for (const figure of document.querySelectorAll<HTMLElement>('.pacman-search')) {
+    const canvas = figure.querySelector('canvas')!;
+    const caption = figure.querySelector('figcaption')!;
+    const ctx = canvas.getContext('2d')!;
+    const scale = Math.max(2, window.devicePixelRatio || 1);
+    canvas.width = W * scale;
+    canvas.height = H * scale;
+    ctx.scale(scale, scale);
+
+    function drawWalls() {
+      ctx.fillStyle = 'rgba(91, 141, 184, 0.05)';
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (wall(r, c)) ctx.fillRect(c * CELL, r * CELL, CELL, CELL);
+        }
+      }
+      // Outline only the wall edges that face open floor.
+      ctx.strokeStyle = ACCENT;
+      ctx.lineWidth = 1.5;
+      ctx.lineCap = 'square';
+      ctx.beginPath();
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (!wall(r, c)) continue;
+          const x = c * CELL, y = r * CELL;
+          if (!wall(r - 1, c)) { ctx.moveTo(x, y); ctx.lineTo(x + CELL, y); }
+          if (!wall(r + 1, c)) { ctx.moveTo(x, y + CELL); ctx.lineTo(x + CELL, y + CELL); }
+          if (!wall(r, c - 1)) { ctx.moveTo(x, y); ctx.lineTo(x, y + CELL); }
+          if (!wall(r, c + 1)) { ctx.moveTo(x + CELL, y); ctx.lineTo(x + CELL, y + CELL); }
+        }
+      }
+      ctx.stroke();
+    }
+
+    function drawPacman([r, c]: Cell, dir: number, mouth: number) {
+      const x = c * CELL + CELL / 2;
+      const y = r * CELL + CELL / 2;
+      ctx.fillStyle = PACMAN;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.arc(x, y, CELL * 0.42, dir + mouth, dir + Math.PI * 2 - mouth);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawFood() {
+      ctx.fillStyle = TEXT;
+      ctx.beginPath();
+      ctx.arc(goal[1] * CELL + CELL / 2, goal[0] * CELL + CELL / 2, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function setCaption(name: string, result: Result, done: boolean) {
+      const stats = done
+        ? ` · ${result.expanded.length} nodes expanded · path ${result.path.length - 1}`
+        : '';
+      caption.innerHTML = `&gt; <b>${name}</b>${stats}`;
+    }
+
+    // One frame of the animation; `t` counts frames within the current algorithm.
+    function render(algo: number, t: number) {
+      const { name, result } = ALGORITHMS[algo];
+      const { expanded, path } = result;
+      ctx.clearRect(0, 0, W, H);
+
+      const shown = Math.min(expanded.length, Math.ceil((t / EXPAND_FRAMES) * expanded.length));
+      for (let i = 0; i < shown; i++) {
+        const [r, c] = expanded[i];
+        // Older expansions are brighter, like the course's heat-map display.
+        const alpha = 0.22 + 0.38 * (1 - i / expanded.length);
+        ctx.fillStyle = `rgba(91, 141, 184, ${alpha})`;
+        ctx.fillRect(c * CELL, r * CELL, CELL, CELL);
+      }
+      drawWalls();
+
+      const walking = t - EXPAND_FRAMES;
+      const step = Math.max(0, Math.min(path.length - 1, Math.floor(walking / STEP_FRAMES)));
+      if (walking >= 0) {
+        ctx.fillStyle = TEXT;
+        for (let i = step + 1; i < path.length; i++) {
+          const [r, c] = path[i];
+          ctx.fillRect(c * CELL + CELL / 2 - 1, r * CELL + CELL / 2 - 1, 2, 2);
+        }
+      }
+      if (step < path.length - 1 || walking < 0) drawFood();
+
+      const here = path[step];
+      // Face the direction of travel (or of the last move once the food is eaten).
+      const [a, b] = step < path.length - 1 ? [here, path[step + 1]] : [path[step - 1], here];
+      const dir = Math.atan2(b[0] - a[0], b[1] - a[1]);
+      const mouth = walking >= 0 ? 0.08 + 0.32 * Math.abs(Math.sin(t / 3)) : 0.3;
+      drawPacman(walking >= 0 ? here : start, walking >= 0 ? dir : Math.PI, mouth);
+
+      setCaption(name, result, t >= EXPAND_FRAMES);
+      return t >= EXPAND_FRAMES + path.length * STEP_FRAMES + HOLD_FRAMES;
+    }
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) {
+      render(2, EXPAND_FRAMES); // A*, fully explored, pacman at the start of the path
+      continue;
+    }
+
+    let algo = 0;
+    let t = 0;
+    let visible = false;
+    let raf = 0;
+
+    function tick() {
+      if (render(algo, t++)) {
+        algo = (algo + 1) % ALGORITHMS.length;
+        t = 0;
+      }
+      raf = visible ? requestAnimationFrame(tick) : 0;
+    }
+
+    new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible && !raf) raf = requestAnimationFrame(tick);
+    }).observe(canvas);
+    render(0, 0);
+  }
+</script>

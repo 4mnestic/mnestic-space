@@ -16,20 +16,18 @@ projects.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).
     Cool stuff.
   </p>
 
-  <p>coming soon</p>
-
-  {/* Placeholder project grid — re-enable once real projects are added to src/content/projects/.
-  <div class="projects-grid">
+  <div class="projects-list">
     {projects.map(project => (
       <ProjectCard
         title={project.data.title}
         description={project.data.description}
         tags={project.data.tags}
-        slug={project.id}
+        visual={project.data.visual}
+        github={project.data.github}
+        paper={project.data.paper}
       />
     ))}
   </div>
-  */}
 
   <section class="section contact-link">
     <p>
@@ -57,9 +55,9 @@ projects.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).
   margin-top: 3rem;
 }
 
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+.projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
 }
 </style>

@@ -10,6 +10,9 @@ const projects = defineCollection({
     date: z.string(),
     demo: z.string().optional(),
     github: z.string().optional(),
+    paper: z.string().optional(),
+    // Animated visual shown on the projects page (see src/pages/projects/index.astro).
+    visual: z.enum(['checkers', 'pacman']).optional(),
   }),
 });
 
