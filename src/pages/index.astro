@@ -5,30 +5,28 @@ import AsciiImage from '../components/AsciiImage.astro';
 
 <BaseLayout title="Home" description="Zach Keyes/mnestic's portfolio">
   <section class="hero section">
-    <h1 class="site-name">ZACH KEYES</h1>
+    <h1 class="site-name">ZACH KEYES // MNESTIC</h1>
   </section>
 
-  <section class="avatar-section section">
-    <div class="avatar-layout">
+  <section class="intro section">
+    <div class="avatar-float">
       <AsciiImage
         src="/images/avatar.jpg"
         alt="mnestic"
         width={280}
       />
     </div>
-  </section>
-
-  <section class="intro section">
     <p>
       Welcome to my website/portfolio. This is a place for me to put cool stuff.
-
-      I am a graduate student at the University of Arizona, studying information science with an emphasis in machine learning. I'm also studying for the actuarial exams P and FM. I also do lots of projects for fun, some of which I complete and put here. 
+    </p>
+    <p>
+      I am a graduate student at the University of Arizona, studying information science with an emphasis in machine learning. I'm also studying for the actuarial exams P and FM. I also do lots of projects for fun, some of which I complete and put here.
     </p>
   </section>
 
   <section class="section">
     <p>
-      <a href="/projects">&gt;&gt; view my projects</a>
+      <a href="/projects">&gt;&gt; my projects</a>
       &nbsp;&nbsp;
       <a href="/about">&gt;&gt; about me</a>
     </p>
@@ -42,26 +40,29 @@ import AsciiImage from '../components/AsciiImage.astro';
   margin-bottom: 0.5rem;
 }
 
-.tagline {
-  color: var(--color-accent-1);
-  font-size: 1rem;
-  margin-bottom: 2rem;
-  max-width: 55ch;
+.intro {
+  display: flow-root;
+  max-width: calc(280px + 2rem + 60ch);
 }
 
-.avatar-section {
-  margin-bottom: 2rem;
-}
-
-.avatar-layout {
-  display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
-  align-items: flex-start;
+.avatar-float {
+  float: left;
+  margin: 0 2rem 1rem 0;
 }
 
 .intro p {
-  max-width: 60ch;
+  max-width: none;
   line-height: 1.7;
+}
+
+.intro p + p {
+  margin-top: 1rem;
+}
+
+@media (max-width: 600px) {
+  .avatar-float {
+    float: none;
+    margin-right: 0;
+  }
 }
 </style>

@@ -5,21 +5,22 @@ import AsciiBox from '../components/AsciiBox.astro';
 
 <BaseLayout title="Contact" description="Get in touch with me.">
 
-  <h2 class="page-title">// CONTACT</h2>
+  {/* Text starting with "//" must be an expression: the Astro compiler drops the whole element otherwise. */}
+  <h2 class="page-title">{"// CONTACT"}</h2>
 
   <AsciiBox>
     <div class="contact-list">
       <div class="contact-row">
-        <span class="contact-label">email</span>
-        zachk (@ my school's email domain)
+        <span class="contact-label unlinked">email</span>
+        <span>zachk (@ my school's email domain)</span>
       </div>
       <div class="contact-row">
-        <span class="contact-label">github</span>
-        <a href="https://github.com/4mnestic" target="_blank" rel="noopener noreferrer">&gt;&gt; github.com/4mnestic</a>
+        <a class="contact-label" href="https://github.com/4mnestic" target="_blank" rel="noopener noreferrer">github</a>
+        <span>github.com/4mnestic</span>
       </div>
       <div class="contact-row">
-        <span class="contact-label">linkedin</span>
-        <a href="https://linkedin.com/in/zkey" target="_blank" rel="noopener noreferrer">&gt;&gt; linkedin.com/in/YOURUSERNAME</a>
+        <a class="contact-label" href="https://linkedin.com/in/zkey" target="_blank" rel="noopener noreferrer">linkedin</a>
+        <span>linkedin.com/in/zkey</span>
       </div>
     </div>
   </AsciiBox>
@@ -32,12 +33,6 @@ import AsciiBox from '../components/AsciiBox.astro';
   color: var(--color-accent-1);
   font-size: 1.2rem;
   letter-spacing: 0.1em;
-}
-
-.intro {
-  color: var(--color-border);
-  font-size: 0.9rem;
-  margin-bottom: 2rem;
 }
 
 .contact-list {
@@ -55,7 +50,10 @@ import AsciiBox from '../components/AsciiBox.astro';
 
 .contact-label {
   min-width: 8ch;
-  color: var(--color-border);
   font-size: 0.85rem;
+}
+
+.contact-label.unlinked {
+  color: var(--color-border);
 }
 </style>
