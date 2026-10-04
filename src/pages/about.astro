@@ -5,7 +5,8 @@ import AsciiBox from '../components/AsciiBox.astro';
 
 <BaseLayout title="About" description="About Zach Keyes — background, studies, and actuarial progress.">
 
-  <h2 class="page-title">// ABOUT</h2>
+  {/* Text starting with "//" must be an expression: the Astro compiler drops the whole element otherwise. */}
+  <h2 class="page-title">{"// ABOUT"}</h2>
 
   <section class="bio-section section">
     <p>

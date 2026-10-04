@@ -9,7 +9,8 @@ projects.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).
 
 <BaseLayout title="Projects" description="Projects">
 
-  <h2 class="page-title">// PROJECTS</h2>
+  {/* Text starting with "//" must be an expression: the Astro compiler drops the whole element otherwise. */}
+  <h2 class="page-title">{"// PROJECTS"}</h2>
 
   <p class="intro">
     Cool stuff.
